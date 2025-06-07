@@ -59,12 +59,12 @@ export default function HomeScreen() {
   return (
     <>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Fit Check - Exercise</ThemedText>
+        <ThemedText type="title" style={{color: '#fff'}}>Fit Check - Exercise</ThemedText>
         <HelloWave />
       </ThemedView>
 
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Search Exercise</ThemedText>
+        <ThemedText type="subtitle" style={{color: '#fff'}}>Search Exercise</ThemedText>
         <View style={styles.autocompleteWrapper}>
           <Autocomplete
             data={
@@ -91,26 +91,22 @@ export default function HomeScreen() {
                     fetchExerciseDetails();
                   }}
                 >
-                  <Text>{item.label}</Text>
+                  <Text style={{ color: '#fff' }}>{item.label}</Text>
                 </TouchableOpacity>
               ),
             }}
             containerStyle={{
               flex: 1,
               zIndex: 1000,
+              backgroundColor: '#000',
             }}
             inputContainerStyle={{
-              borderWidth: 1,
-              borderColor: '#ccc',
-              borderRadius: 4,
-              backgroundColor: '#fff',
+              backgroundColor: '#000',
             }}
             listContainerStyle={{
               maxHeight: 200,
               zIndex: 1000,
-              borderColor: '#ccc',
-              borderWidth: 1,
-              backgroundColor: '#fff',
+              backgroundColor: '#000',
             }}
           />
 
@@ -160,6 +156,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingTop: 60,
     padding: 16,
+    backgroundColor: '#000',
   },
   stepContainer: {
     gap: 8,
@@ -167,9 +164,11 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 110,
     zIndex: 1000,
+    backgroundColor: '#000',
   },
   stepContainerTwo: {
-    fontSize: 13
+    fontSize: 13,
+    color: '#fff'
   },
   reactLogo: {
     height: 300,
@@ -177,9 +176,8 @@ const styles = StyleSheet.create({
   },
   searchButton: {
     margin: 1,
-    backgroundColor: '#abb',
+    backgroundColor: '#000',
     paddingVertical: 5,
-    borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -187,12 +185,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
+    backgroundColor: '#000',
   },
 
   clearButton: {
     padding: 8,
     marginLeft: 5,
-    backgroundColor: '#eee',
+    backgroundColor: '#fff',
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
@@ -201,7 +200,7 @@ const styles = StyleSheet.create({
   fetchButton: {
     padding: 8,
     marginLeft: 5,
-    backgroundColor: '#cce',
+    backgroundColor: '#fff',
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
