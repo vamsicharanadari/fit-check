@@ -80,6 +80,7 @@ export default function HomeScreen() {
             flatListProps={{
               keyExtractor: (item) => item.value,
               keyboardShouldPersistTaps: 'handled',
+              nestedScrollEnabled: true, // <- important
               renderItem: ({ item }) => (
                 <TouchableOpacity
                   style={styles.searchButton}
@@ -105,8 +106,11 @@ export default function HomeScreen() {
               backgroundColor: '#fff',
             }}
             listContainerStyle={{
-              maxHeight: 500,
+              maxHeight: 200,
               zIndex: 1000,
+              borderColor: '#ccc',
+              borderWidth: 1,
+              backgroundColor: '#fff',
             }}
           />
 
