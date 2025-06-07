@@ -6,8 +6,8 @@ import { Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native
 import { HelloWave } from '@/components/HelloWave';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import Autocomplete from 'react-native-autocomplete-input';
 import Constants from 'expo-constants';
+import Autocomplete from 'react-native-autocomplete-input';
 
 const { BASE_URL } = Constants.expoConfig?.extra ?? {};
 
@@ -46,12 +46,13 @@ export default function HomeScreen() {
       setGifUrl(exercise.gifUrl || '');
     } catch (err) {
       console.error('Failed to fetch exercise details:', err);
-      setDescription('');
+      setDescription('Failed to fetch exercise details:' + err);
       setGifUrl('');
     }
   };
 
   useEffect(() => {
+    setDescription(BASE_URL);
     fetchTitles();
   }, []);
 
