@@ -1,57 +1,148 @@
+import axios from 'axios';
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import Autocomplete from 'react-native-autocomplete-input';
+import Constants from 'expo-constants';
+
+const { BASE_URL } = Constants.expoConfig?.extra ?? {};
+
+type ItemType = {
+  label: string;
+  value: string;
+};
 
 export default function HomeScreen() {
+  const [description, setDescription] = useState('');
+  const [value, setValue] = useState<string>('');
+  const [items, setItems] = useState<ItemType[]>([]);
+  const [gifUrl, setGifUrl] = useState('');
+
+  const fetchTitles = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/titles`);
+      const fetchedTitles = response.data.titles.map((title: string, index: number) => ({
+        label: title,
+        value: title,
+      }));
+      setItems(fetchedTitles);
+    } catch (error) {
+      console.error('Failed to fetch titles:', error);
+    }
+  };
+
+  const fetchExerciseDetails = async () => {
+    if (!value) return;
+
+    try {
+      const res = await axios.get(`${BASE_URL}/exercises/search?title=${encodeURIComponent(value)}`);
+      const exercise = res.data.exercise;
+
+      setDescription(exercise.description || '');
+      setGifUrl(exercise.gifUrl || '');
+    } catch (err) {
+      console.error('Failed to fetch exercise details:', err);
+      setDescription('');
+      setGifUrl('');
+    }
+  };
+
+  useEffect(() => {
+    fetchTitles();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
+    <>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
+        <ThemedText type="title">Fit Check - Exercise</ThemedText>
         <HelloWave />
       </ThemedView>
+
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
+        <ThemedText type="subtitle">Search Exercise</ThemedText>
+        <View style={styles.autocompleteWrapper}>
+          <Autocomplete
+            data={
+              value.length > 0
+                ? items.filter(item =>
+                  item.label.toLowerCase().includes(value.toLowerCase())
+                )
+                : items.slice(0, 10)
+            }
+            defaultValue={value}
+            onChangeText={text => setValue(text)}
+            placeholder="Select or type an exercise..."
+            flatListProps={{
+              keyExtractor: (item) => item.value,
+              keyboardShouldPersistTaps: 'handled',
+              renderItem: ({ item }) => (
+                <TouchableOpacity
+                  style={styles.searchButton}
+                  onPress={() => {
+                    setValue(item.label);
+                    Keyboard.dismiss();
+                    fetchExerciseDetails();
+                  }}
+                >
+                  <Text>{item.label}</Text>
+                </TouchableOpacity>
+              ),
+            }}
+            containerStyle={{
+              flex: 1,
+              zIndex: 1000,
+            }}
+            inputContainerStyle={{
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 4,
+              backgroundColor: '#fff',
+            }}
+            listContainerStyle={{
+              maxHeight: 500,
+              zIndex: 1000,
+            }}
+          />
+
+          {/* Clear Button */}
+          {value.length > 0 && (
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => {
+                setValue('');
+                setItems([]);
+              }}
+            >
+              <Text style={{ fontSize: 16 }}>✕</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Fetch Button */}
+          <TouchableOpacity
+            style={styles.fetchButton}
+            onPress={() => {
+              Keyboard.dismiss();
+              fetchTitles();
+            }}
+          >
+            <Text style={{ fontSize: 14 }}>Fetch</Text>
+          </TouchableOpacity>
+        </View>
       </ThemedView>
+
+      <Image
+        source={gifUrl ? gifUrl : require('@/assets/images/partial-react-logo.png')}
+        style={styles.reactLogo}
+      />
+
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
+        <ThemedText type="subtitle" style={styles.stepContainerTwo}>{description}</ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    </>
   );
 }
 
@@ -59,17 +150,53 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
+    paddingTop: 60,
+    padding: 16,
   },
   stepContainer: {
     gap: 8,
-    marginBottom: 8,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 110,
+    zIndex: 1000,
+  },
+  stepContainerTwo: {
+    fontSize: 13
   },
   reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+    height: 300,
+    width: 410,
+  },
+  searchButton: {
+    margin: 1,
+    backgroundColor: '#abb',
+    paddingVertical: 5,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  autocompleteWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+
+  clearButton: {
+    padding: 8,
+    marginLeft: 5,
+    backgroundColor: '#eee',
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  fetchButton: {
+    padding: 8,
+    marginLeft: 5,
+    backgroundColor: '#cce',
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
