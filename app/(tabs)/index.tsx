@@ -21,6 +21,7 @@ export default function HomeScreen() {
   const [value, setValue] = useState<string>('');
   const [items, setItems] = useState<ItemType[]>([]);
   const [gifUrl, setGifUrl] = useState('');
+  const [selected, setSelected] = useState(false);
 
   const fetchTitles = async () => {
     try {
@@ -36,7 +37,7 @@ export default function HomeScreen() {
   };
 
   const fetchExerciseDetails = async () => {
-    if (!value) return;
+    if (!value || !selected) return;
 
     try {
       const res = await axios.get(`${BASE_URL}/exercises/search?title=${encodeURIComponent(value)}`);
@@ -84,6 +85,7 @@ export default function HomeScreen() {
                   style={styles.searchButton}
                   onPress={() => {
                     setValue(item.label);
+                    setSelected(true);
                     Keyboard.dismiss();
                     fetchExerciseDetails();
                   }}
@@ -114,6 +116,7 @@ export default function HomeScreen() {
               style={styles.clearButton}
               onPress={() => {
                 setValue('');
+                setSelected(false);
                 setItems([]);
               }}
             >
