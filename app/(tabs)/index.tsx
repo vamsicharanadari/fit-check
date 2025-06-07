@@ -52,7 +52,6 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    setDescription(BASE_URL);
     fetchTitles();
   }, []);
 
