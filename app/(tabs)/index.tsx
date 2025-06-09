@@ -59,12 +59,12 @@ export default function HomeScreen() {
   return (
     <>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title" style={{color: '#fff'}}>Fit Check - Exercise</ThemedText>
+        <ThemedText type="title" style={{ color: '#fff' }}>Fit Check - Exercise</ThemedText>
         <HelloWave />
       </ThemedView>
 
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle" style={{color: '#fff'}}>Search Exercise</ThemedText>
+        <ThemedText type="subtitle" style={{ color: '#fff' }}>Search Exercise</ThemedText>
         <View style={styles.autocompleteWrapper}>
           <Autocomplete
             data={
