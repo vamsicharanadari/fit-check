@@ -14,6 +14,10 @@ const headersWeights = ['Set', 'Reps', 'Weight'];
 interface Exercise {
   title: string;
   table: string[][];
+  alternatives?: {
+    title: string;
+    table: string[][];
+  }[];
 }
 
 interface MuscleGroup {
@@ -24,6 +28,7 @@ interface MuscleGroup {
 interface Routine {
   name: string;
   description: string;
+  archive?: boolean;
   groups: MuscleGroup[];
 }
 
@@ -43,39 +48,53 @@ export default function TabTwoScreen() {
     fetchRoutines();
   }, []);
 
+  const gymRoutines = routines.filter(r => !r.archive);
+  const archivedRoutines = routines.filter(r => r.archive);
+
+  const renderRoutineSection = (title: string, routineList: Routine[]) => (
+    <>
+      <ThemedView style={styles.sectionTitleContainer}>
+        <ThemedText style={{ fontSize: 25, paddingTop: 20 }} type="title">{title}</ThemedText>
+      </ThemedView>
+      {routineList.map((routine, routineIdx) => (
+        <ThemedView key={routineIdx} style={styles.routineContainer}>
+          <Collapsible title={routine.name}>
+            {routine.groups?.map((group, groupIdx) => (
+              <ThemedView key={groupIdx} style={styles.groupContainer}>
+                <Collapsible title={group.title}>
+                  {group.exercises.map((exercise, exIdx) => (
+                    <ThemedView key={exIdx}>
+                      <ThemedText style={styles.titleText}>{exercise.title}</ThemedText>
+                      <Table headers={headersWeights} data={exercise.table} />
+                      &nbsp;
+                      {exercise.alternatives && exercise.alternatives.length > 0 && (
+                        <Collapsible title="Alternatives">
+                          {exercise.alternatives.map((alt, altIdx) => (
+                            <ThemedView key={altIdx} style={styles.alternativeContainer}>
+                              <ThemedText style={styles.altTitle}>{alt.title}</ThemedText>
+                              <Table headers={headersWeights} data={alt.table} />
+                            </ThemedView>
+                          ))}
+                        </Collapsible>
+                      )}
+                    </ThemedView>
+                  ))}
+                </Collapsible>
+              </ThemedView>
+            ))}
+          </Collapsible>
+        </ThemedView>
+      ))}
+    </>
+  );
+
   return (
     <ScrollView contentContainerStyle={styles.exploreBlock}>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Explore</ThemedText>
       </ThemedView>
-      <ThemedText style={{ paddingBottom: 10 }}>Routines workouts for everyday Gym.</ThemedText>
-      <ThemedView style={{
-        paddingBottom: 20,
-        backgroundColor: '#000'
-      }}>
-        {routines.map((routine, routineIdx) => (
-          <ThemedView key={routineIdx} style={{
-            padding: 10
-          }}>
-            <Collapsible title={routine.name}>
-              {routine.groups?.map((group, groupIdx) => (
-                <ThemedView key={groupIdx} style={{
-                  padding: 10
-                }}>
-                  <Collapsible title={group.title}>
-                    {group.exercises.map((exercise, exIdx) => (
-                      <ThemedView key={exIdx}>
-                        <ThemedText style={styles.titleText}>{exercise.title}</ThemedText>
-                        <Table headers={headersWeights} data={exercise.table} />
-                      </ThemedView>
-                    ))}
-                  </Collapsible>
-                </ThemedView>
-              ))}
-            </Collapsible>
-          </ThemedView>
-        ))}
-      </ThemedView>
+      {renderRoutineSection('Gym Routines', gymRoutines)}
+      {archivedRoutines.length > 0 && renderRoutineSection('Archived Routines', archivedRoutines)}
     </ScrollView>
   );
 }
@@ -94,5 +113,25 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingLeft: 25,
     backgroundColor: '#000'
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingBottom: 20,
+    backgroundColor: '#000',
+  },
+  routineContainer: {
+    padding: 10
+  },
+  groupContainer: {
+    padding: 10
+  },
+  alternativeContainer: {
+    paddingTop: 10,
+    paddingLeft: 10
+  },
+  altTitle: {
+    fontSize: 15,
+    paddingBottom: 5
   }
 });
